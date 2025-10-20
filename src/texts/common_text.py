@@ -1,0 +1,6 @@
+next_photo: str = "Следующие фото для проверки"
+cancel: str = "Отмена"
+close: str = "Закрыть"
+ok: str = "Окей"
+reject: str = "Отклонить"
+approve: str = "Одобрить"
