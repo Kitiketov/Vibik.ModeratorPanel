@@ -1,11 +1,8 @@
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-from src.config import settings
-from src.middleware import ModerationClientMiddleware
-from src.auth_middleware import ModeratorAuthMiddleware
+from src.middleware import ModerationClientMiddleware, ModeratorAuthMiddleware
 from src.handlers import (
     moderator,
-
 )
 
 
@@ -21,7 +18,6 @@ async def run_bot(token: str) -> None:
 
     dp.include_routers(
         moderator.router,
-
     )
 
     await bot.delete_webhook(drop_pending_updates=True)

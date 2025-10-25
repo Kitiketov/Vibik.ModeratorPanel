@@ -36,14 +36,21 @@ def create_moderator_kb(user_task_id):
             [
                 InlineKeyboardButton(
                     text=approve,
-                    callback_data=ModeratorFactory(action=Actions.APPROVE_PHOTO, user_task_id=user_task_id).pack(),
+                    callback_data=ModeratorFactory(
+                        action=Actions.APPROVE_PHOTO, user_task_id=user_task_id
+                    ).pack(),
                 ),
                 InlineKeyboardButton(
                     text=reject,
-                    callback_data=ModeratorFactory(action=Actions.REJECT_PHOTO, user_task_id=user_task_id).pack())
+                    callback_data=ModeratorFactory(
+                        action=Actions.REJECT_PHOTO, user_task_id=user_task_id
+                    ).pack(),
+                ),
             ]
         ]
     )
 
 
-get_next_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=next_photo)]])
+get_next_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
+    keyboard=[[KeyboardButton(text=next_photo)]]
+)

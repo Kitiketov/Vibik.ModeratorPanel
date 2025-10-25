@@ -4,7 +4,7 @@ from pydantic import AnyUrl
 
 class Settings(BaseSettings):
     bot_token: str = ""
-    API_BASE: AnyUrl = "http://localhost:5248"
+    API_BASE: AnyUrl = AnyUrl("http://localhost:5248")
     API_TOKEN: str | None = None
     VERIFY_SSL: bool = False
     CA_CERT_PATH: str | None = None

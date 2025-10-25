@@ -3,6 +3,7 @@ from aiogram.types import TelegramObject
 from src.api.photo_client import ModerationClient, create_http_session
 from src.config import settings
 
+
 class ModerationClientMiddleware(BaseMiddleware):
     def __init__(self):
         self.client: ModerationClient | None = None
@@ -15,6 +16,6 @@ class ModerationClientMiddleware(BaseMiddleware):
                 session=session,
                 token=settings.API_TOKEN,
             )
-        
+
         data["moderation_client"] = self.client
         return await handler(event, data)
