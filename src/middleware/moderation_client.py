@@ -12,7 +12,7 @@ class ModerationClientMiddleware(BaseMiddleware):
         if self.client is None:
             session = await create_http_session()
             self.client = ModerationClient(
-                base_url=str(settings.API_BASE),
+                base_url=str(settings.api_base),
                 session=session,
                 token=settings.API_TOKEN,
             )
