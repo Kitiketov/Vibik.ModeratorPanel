@@ -29,9 +29,9 @@ class ModeratorAuthMiddleware(BaseMiddleware):
 
 
         user_id = None
-        if isinstance(event, Message):
+        if isinstance(event, Message) and event.from_user:
             user_id = event.from_user.id
-        elif isinstance(event, CallbackQuery):
+        elif isinstance(event, CallbackQuery) and event.from_user:
             user_id = event.from_user.id
 
         if not user_id:

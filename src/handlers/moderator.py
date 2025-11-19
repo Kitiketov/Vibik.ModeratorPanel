@@ -1,8 +1,16 @@
 from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, InputMediaPhoto
-from aiogram.types import Message, ReactionTypeEmoji
+from aiogram.types import (
+    CallbackQuery,
+    InaccessibleMessage,
+    InputMediaAudio,
+    InputMediaDocument,
+    InputMediaPhoto,
+    InputMediaVideo,
+    Message,
+    ReactionTypeEmoji,
+)
 
 from src.api.photo_client import ModerationClient
 from src.keyboards.common_kb import get_next_kb, create_moderator_kb
@@ -23,7 +31,10 @@ async def set_reaction(message: Message) -> None:
     Args:
         message (Message): Объект сообщения от пользователя.
     """
-    await message.bot.set_message_reaction(
+    bot = message.bot
+    if bot is None:
+        return
+    await bot.set_message_reaction(
         chat_id=message.chat.id,
         message_id=message.message_id,
         reaction=[ReactionTypeEmoji(emoji="👍")],
@@ -48,8 +59,10 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
             return
 
         text = task.info()
-        media = []
-        for i, p in enumerate(task.extendedInfo.userPhotos):
+        media: list[
+            InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
+        ] = []
+        for i, p in enumerate(task.extendedInfo.userPhotos or []):
             url = str(p)
             if i == 0:
                 media.append(InputMediaPhoto(media=url, caption=text))
@@ -85,8 +98,7 @@ async def approve_handler(
         await callback.answer(f"Ошибка: {e}")
         print(f"Error in approve_handler: {e}")
     finally:
-        await callback.message.reply_to_message.delete()
-        await callback.message.delete()
+        await _delete_related_messages(callback.message)
 
 
 @router.callback_query(
@@ -108,4 +120,19 @@ async def reject_handler(
         await callback.answer(f"Ошибка: {e}")
         print(f"Error in reject_handler: {e}")
     finally:
-        await callback.message.delete()
+        await _delete_related_messages(callback.message, delete_reply=False)
+
+
+async def _delete_related_messages(
+    message: Message | InaccessibleMessage | None,
+    *,
+    delete_reply: bool = True,
+) -> None:
+    """Delete callback message and optionally replied message, if accessible."""
+    if not isinstance(message, Message):
+        return
+
+    if delete_reply and isinstance(message.reply_to_message, Message):
+        await message.reply_to_message.delete()
+
+    await message.delete()
