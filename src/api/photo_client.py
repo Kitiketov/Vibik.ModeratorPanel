@@ -1,40 +1,44 @@
 from __future__ import annotations
 
 import ssl
-from typing import Any
+from typing import Any, Optional
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
-from pydantic import BaseModel, HttpUrl
 
+from src.common.models.moderation_task import ModerationTask
 from src.config import settings
 
 
-class ModerationItem(BaseModel):
-    id: int
-    url: HttpUrl
-    author: str | None = None
-    theme: str | None = None
-    tags: list[str] = []
-    description: str | None = None
+# ---- ssl helper ----
 
-
-def _build_ssl(verify: bool, ca_path: str | None) -> ssl.SSLContext | bool:
+def _build_ssl(verify: bool, ca_path: Optional[str]) -> ssl.SSLContext | bool:
+    """
+    Строим SSL-контекст:
+    - если verify=False -> отключаем проверку (только для DEV!)
+    - если есть ca_path -> создаём контекст с этим CA
+    - иначе -> обычный дефолтный контекст
+    """
     if not verify:
         return False  # отключаем проверку в DEV (только локально!)
     if ca_path:
-        ctx = ssl.create_default_context(cafile=ca_path)
-        return ctx
-    return ssl.create_default_context()  # обычная проверка
+        return ssl.create_default_context(cafile=ca_path)
+    return ssl.create_default_context()
 
+
+# ---- client ----
 
 class ModerationClient:
     def __init__(self, base_url: str, session: ClientSession, token: str | None = None):
         self.base_url = base_url.rstrip("/")
         self.session = session
-        self.headers = {"Authorization": f"Bearer {token}"} if token else None
+        self.headers: dict[str, str] = {}
+        if settings.bot_secret:
+            self.headers["Authorization"] = f"Bearer {settings.bot_secret}"
 
-    async def next(self) -> ModerationItem | None:
+
+
+    async def next(self) -> ModerationTask | None:
         """
         GET /api/moderation/next
         200 -> JSON объекта
@@ -42,53 +46,57 @@ class ModerationClient:
         """
         url = f"{self.base_url}/api/moderation/next"
         timeout = ClientTimeout(total=10)
-        async with self.session.get(url, timeout=timeout) as resp:
+        async with self.session.get(url, headers=self.headers, timeout=timeout) as resp:
             if resp.status == 204:
                 return None
             resp.raise_for_status()
             data: Any = await resp.json()
-            return ModerationItem.model_validate(data)
+            return ModerationTask.model_validate(data)
 
-    async def approve(self, user_task_id: int) -> bool:
+    async def approve(self, task_id: str) -> bool:
         """
         POST /api/moderation/{id}/approve
         200 -> успешно одобрено
         """
-        url = f"{self.base_url}/api/moderation/{user_task_id}/approve"
+        url = f"{self.base_url}/api/moderation/{task_id}/approve"
         timeout = ClientTimeout(total=10)
-        async with self.session.post(
-            url, headers=self.headers, timeout=timeout
-        ) as resp:
+        async with self.session.post(url, headers=self.headers, timeout=timeout) as resp:
             resp.raise_for_status()
             return resp.status == 200
 
-    async def reject(self, user_task_id: int) -> bool:
+    async def reject(self, task_id: str) -> bool:
         """
         POST /api/moderation/{id}/reject
         200 -> успешно отклонено
         """
-        url = f"{self.base_url}/api/moderation/{user_task_id}/reject"
+        url = f"{self.base_url}/api/moderation/{task_id}/reject"
         timeout = ClientTimeout(total=10)
-        async with self.session.post(
-            url, headers=self.headers, timeout=timeout
-        ) as resp:
+        async with self.session.post(url, headers=self.headers, timeout=timeout) as resp:
             resp.raise_for_status()
             return resp.status == 200
 
     async def check_moderator(self, user_id: int) -> bool:
         """
         GET /api/moderation/{user_id}/check
-        200 -> модератор авторизован
-        404 -> модератор не найден
+        200 -> модератор авторизован (ожидаем bool/JSON)
+        404/204 -> модератор не найден
         """
         url = f"{self.base_url}/api/moderation/{user_id}/check"
         timeout = ClientTimeout(total=10)
         async with self.session.get(url, headers=self.headers, timeout=timeout) as resp:
-            if resp.status == 204:
+            if resp.status in (204, 404):
                 return False
             resp.raise_for_status()
             data: Any = await resp.json()
-            return data
+            # если API вернёт {"authorized": true} — подстроимся:
+            if isinstance(data, dict):
+                # пробуем вытащить первое булево поле
+                for v in data.values():
+                    if isinstance(v, bool):
+                        return v
+            if isinstance(data, bool):
+                return data
+            return False
 
 
 async def create_http_session() -> ClientSession:

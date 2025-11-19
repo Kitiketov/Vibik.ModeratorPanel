@@ -1,13 +1,10 @@
 from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
-from aiogram.types import FSInputFile
+from aiogram.types import CallbackQuery, InputMediaPhoto
 from aiogram.types import Message, ReactionTypeEmoji
 
 from src.api.photo_client import ModerationClient
-from src.common.photo import Photo
-from src.common.task import Task
 from src.keyboards.common_kb import get_next_kb, create_moderator_kb
 from src.states import moderator_state
 from src.states.actions import Actions
@@ -43,29 +40,27 @@ async def start_handler(message: Message, state: FSMContext) -> None:
 @router.message(F.text == next_photo)
 async def show_next_photo(message: Message, moderation_client: ModerationClient):
     try:
-        item = await moderation_client.next()
+        task = await moderation_client.next()
+        print(task)
 
-        if item is None:
+        if task is None:
             await message.answer("Нет фотографий для модерации")
             return
 
-        # Создаем Task из данных API
-        task = Task(
-            user_task_id=item.id,
-            name=item.theme or "Без темы",
-            description=item.description or "Без описания",
-            tags=item.tags,
-        )
+        text = task.info()
+        media = []
+        for i, p in enumerate(task.extendedInfo.userPhotos):
+            url = str(p)
+            if i == 0:
+                media.append(InputMediaPhoto(media=url, caption=text))
+            else:
+                media.append(InputMediaPhoto(media=url))
 
-        # Создаем Photo объект
-        photo = Photo(url=str(item.url), task=task)
+        a = await message.answer_media_group(media=media)
+        print(a[0].message_id)
+        kb = create_moderator_kb(task.taskId)
+        await message.answer("Действие с задачей:", reply_markup=kb,reply_to_message_id=a[0].message_id)
 
-        text = photo.Info()
-        replay = create_moderator_kb(photo.task.user_task_id)
-
-        await message.answer_photo(
-            caption=text, photo=FSInputFile(str(item.url)), reply_markup=replay
-        )
     except Exception as e:
         await message.answer(f"Ошибка при получении фото: {e}")
         print(f"Error in show_next_photo: {e}")
@@ -75,10 +70,10 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
     moderator_state.ModeratorFactory.filter(F.action == Actions.APPROVE_PHOTO)
 )
 async def approve_handler(
-    callback: CallbackQuery,
-    callback_data: moderator_state.ModeratorFactory,
-    state: FSMContext,
-    moderation_client: ModerationClient,
+        callback: CallbackQuery,
+        callback_data: moderator_state.ModeratorFactory,
+        state: FSMContext,
+        moderation_client: ModerationClient,
 ) -> None:
     try:
         success = await moderation_client.approve(callback_data.user_task_id)
@@ -90,6 +85,7 @@ async def approve_handler(
         await callback.answer(f"Ошибка: {e}")
         print(f"Error in approve_handler: {e}")
     finally:
+        await callback.message.reply_to_message.delete()
         await callback.message.delete()
 
 
@@ -97,10 +93,10 @@ async def approve_handler(
     moderator_state.ModeratorFactory.filter(F.action == Actions.REJECT_PHOTO)
 )
 async def reject_handler(
-    callback: CallbackQuery,
-    callback_data: moderator_state.ModeratorFactory,
-    state: FSMContext,
-    moderation_client: ModerationClient,
+        callback: CallbackQuery,
+        callback_data: moderator_state.ModeratorFactory,
+        state: FSMContext,
+        moderation_client: ModerationClient,
 ) -> None:
     try:
         success = await moderation_client.reject(callback_data.user_task_id)

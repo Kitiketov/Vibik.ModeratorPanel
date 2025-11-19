@@ -22,14 +22,12 @@ class ModeratorAuthMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: Dict[str, Any],
     ) -> Any:
-        # Получаем клиент из предыдущего middleware
         self.client = data.get("moderation_client")
 
         if not self.client:
-            # Если клиент не найден, пропускаем проверку
             return await handler(event, data)
 
-        # Получаем user_id из события
+
         user_id = None
         if isinstance(event, Message):
             user_id = event.from_user.id
@@ -39,7 +37,6 @@ class ModeratorAuthMiddleware(BaseMiddleware):
         if not user_id:
             return await handler(event, data)
 
-        # Проверяем авторизацию модератора
         try:
             is_moderator = await self.client.check_moderator(user_id)
             if not is_moderator:
