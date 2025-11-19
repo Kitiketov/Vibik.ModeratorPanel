@@ -4,7 +4,7 @@ from pydantic import AnyUrl
 
 class Settings(BaseSettings):
     bot_token: str = ""
-    API_BASE: AnyUrl = AnyUrl("http://localhost:5000")
+    API_BASE: AnyUrl | None = None
     API_BASE_LOCAL: AnyUrl | None = None
     API_ENV: str = "prod"  # prod | local
     API_TOKEN: str | None = None
@@ -15,9 +15,16 @@ class Settings(BaseSettings):
     @property
     def api_base(self) -> AnyUrl:
         """Возвращает адрес API в зависимости от окружения."""
+        base: AnyUrl | None = None
         if self.API_ENV.lower() == "local" and self.API_BASE_LOCAL is not None:
-            return self.API_BASE_LOCAL
-        return self.API_BASE
+            base = self.API_BASE_LOCAL
+        else:
+            base = self.API_BASE
+
+        if base is None:
+            raise ValueError("API base URL is not configured")
+
+        return base
 
     class Config:
         env_file = ".env"
