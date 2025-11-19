@@ -77,13 +77,13 @@ jobs:
             echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.REGISTRY_USERNAME }}" --password-stdin
             BASE_PATH=${{ secrets.DEPLOY_BASE_PATH }}
             mkdir -p "$BASE_PATH"
-            cat <<EOF > "$BASE_PATH/.env"
-API_BASE=${{ secrets.API_BASE }}
-API_BASE_LOCAL=${{ secrets.API_BASE_LOCAL }}
-API_ENV=${{ secrets.API_ENV }}
-BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-BOT_SECRET=${{ secrets.BOT_SECRET }}
-EOF
+            cat <<'EOF' > "$BASE_PATH/.env"
+            API_BASE=${{ secrets.API_BASE }}
+            API_BASE_LOCAL=${{ secrets.API_BASE_LOCAL }}
+            API_ENV=${{ secrets.API_ENV }}
+            BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+            BOT_SECRET=${{ secrets.BOT_SECRET }}
+            EOF
             docker pull "$IMAGE"
             docker stop ${{ secrets.DEPLOY_CONTAINER_NAME }} || true
             docker rm ${{ secrets.DEPLOY_CONTAINER_NAME }} || true
