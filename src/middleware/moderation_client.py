@@ -14,7 +14,7 @@ class ModerationClientMiddleware(BaseMiddleware):
             self.client = ModerationClient(
                 base_url=str(settings.api_base),
                 session=session,
-                token=settings.API_TOKEN,
+                token=settings.api_token,
             )
 
         data["moderation_client"] = self.client

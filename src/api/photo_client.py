@@ -100,6 +100,6 @@ class ModerationClient:
 
 
 async def create_http_session() -> ClientSession:
-    ssl_ctx_or_flag = _build_ssl(settings.VERIFY_SSL, settings.CA_CERT_PATH)
+    ssl_ctx_or_flag = _build_ssl(settings.verify_ssl, settings.ca_cert_path)
     connector = aiohttp.TCPConnector(ssl=ssl_ctx_or_flag)
     return aiohttp.ClientSession(connector=connector)

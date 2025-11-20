@@ -4,22 +4,22 @@ from pydantic import AnyUrl
 
 class Settings(BaseSettings):
     bot_token: str = ""
-    API_BASE: AnyUrl | None = None
-    API_BASE_LOCAL: AnyUrl | None = None
-    API_ENV: str = "prod"  # prod | local
-    API_TOKEN: str | None = None
-    VERIFY_SSL: bool = False
-    CA_CERT_PATH: str | None = None
+    api_base_host: AnyUrl | None = None
+    api_base_local: AnyUrl | None = None
+    api_env: str = "prod"  # prod | local
+    api_token: str | None = None
+    verify_ssl: bool = False
+    ca_cert_path: str | None = None
     bot_secret: str = ""
 
     @property
     def api_base(self) -> AnyUrl:
         """Возвращает адрес API в зависимости от окружения."""
         base: AnyUrl | None = None
-        if self.API_ENV.lower() == "local" and self.API_BASE_LOCAL is not None:
-            base = self.API_BASE_LOCAL
+        if self.api_env.lower() == "local" and self.api_base_local is not None:
+            base = self.api_base_local
         else:
-            base = self.API_BASE
+            base = self.api_base_host
 
         if base is None:
             raise ValueError("API base URL is not configured")
