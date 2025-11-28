@@ -10,20 +10,7 @@ from src.common.models.moderation_task import ModerationTask
 from src.config import settings
 
 
-# ---- ssl helper ----
 
-def _build_ssl(verify: bool, ca_path: Optional[str]) -> ssl.SSLContext | bool:
-    """
-    Строим SSL-контекст:
-    - если verify=False -> отключаем проверку (только для DEV!)
-    - если есть ca_path -> создаём контекст с этим CA
-    - иначе -> обычный дефолтный контекст
-    """
-    if not verify:
-        return False  # отключаем проверку в DEV (только локально!)
-    if ca_path:
-        return ssl.create_default_context(cafile=ca_path)
-    return ssl.create_default_context()
 
 
 # ---- client ----
@@ -100,6 +87,5 @@ class ModerationClient:
 
 
 async def create_http_session() -> ClientSession:
-    ssl_ctx_or_flag = _build_ssl(settings.verify_ssl, settings.ca_cert_path)
-    connector = aiohttp.TCPConnector(ssl=ssl_ctx_or_flag)
+    connector = aiohttp.TCPConnector()
     return aiohttp.ClientSession(connector=connector)
