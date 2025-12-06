@@ -72,7 +72,7 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
 
         a = await message.answer_media_group(media=media)
         print(a[0].message_id)
-        kb = create_moderator_kb(task.taskId)
+        kb = create_moderator_kb(task.userTaskId)
         await message.answer("Действие с задачей:", reply_markup=kb,reply_to_message_id=a[0].message_id)
 
     except Exception as e:

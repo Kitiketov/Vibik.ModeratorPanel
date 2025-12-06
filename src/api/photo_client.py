@@ -40,23 +40,23 @@ class ModerationClient:
             data: Any = await resp.json()
             return ModerationTask.model_validate(data)
 
-    async def approve(self, task_id: str) -> bool:
+    async def approve(self, user_task_id: int) -> bool:
         """
         POST /api/moderation/{id}/approve
         200 -> успешно одобрено
         """
-        url = f"{self.base_url}/api/moderation/{task_id}/approve"
+        url = f"{self.base_url}/api/moderation/{user_task_id}/approve"
         timeout = ClientTimeout(total=10)
         async with self.session.post(url, headers=self.headers, timeout=timeout) as resp:
             resp.raise_for_status()
             return resp.status == 200
 
-    async def reject(self, task_id: str) -> bool:
+    async def reject(self, user_task_id: int) -> bool:
         """
         POST /api/moderation/{id}/reject
         200 -> успешно отклонено
         """
-        url = f"{self.base_url}/api/moderation/{task_id}/reject"
+        url = f"{self.base_url}/api/moderation/{user_task_id}/reject"
         timeout = ClientTimeout(total=10)
         async with self.session.post(url, headers=self.headers, timeout=timeout) as resp:
             resp.raise_for_status()
