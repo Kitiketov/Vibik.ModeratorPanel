@@ -40,7 +40,7 @@ class ModerationClient:
             data: Any = await resp.json()
             return ModerationTask.model_validate(data)
 
-    async def approve(self, user_task_id: str) -> bool:
+    async def approve(self, user_task_id: int) -> bool:
         """
         POST /api/moderation/{id}/approve
         200 -> успешно одобрено
@@ -51,7 +51,7 @@ class ModerationClient:
             resp.raise_for_status()
             return resp.status == 200
 
-    async def reject(self, user_task_id: str) -> bool:
+    async def reject(self, user_task_id: int) -> bool:
         """
         POST /api/moderation/{id}/reject
         200 -> успешно отклонено
