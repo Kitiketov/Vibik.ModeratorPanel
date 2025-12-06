@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart,Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
     CallbackQuery,
@@ -49,6 +49,7 @@ async def start_handler(message: Message, state: FSMContext) -> None:
 
 
 @router.message(F.text == next_photo)
+@router.message(Command("next_photo"))
 async def show_next_photo(message: Message, moderation_client: ModerationClient):
     try:
         task = await moderation_client.next()
