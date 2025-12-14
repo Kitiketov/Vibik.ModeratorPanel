@@ -12,7 +12,7 @@ class ModerationTask(BaseModel):
     taskId: str
     name: str
     tags: list[str]
-    extendedInfo: TaskExtendedInfo
+    extendedInfo: TaskExtendedInfo|None
 
     def info(self):
         return photo_info.format(self.name, self.extendedInfo.description, ", ".join(map(str, self.tags)))
