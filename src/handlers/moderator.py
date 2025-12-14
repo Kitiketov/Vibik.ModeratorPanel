@@ -48,6 +48,7 @@ async def start_handler(message: Message, state: FSMContext) -> None:
     await message.answer("Привет", reply_markup=get_next_kb)
 
 
+
 @router.message(F.text == next_photo)
 @router.message(Command("next_photo"))
 async def show_next_photo(message: Message, moderation_client: ModerationClient):
@@ -60,17 +61,19 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
             return
 
         text = task.info()
-        media: list[
-            InputMediaAudio | InputMediaDocument | InputMediaPhoto | InputMediaVideo
-        ] = []
+        media = []
+        a = None
         for i, p in enumerate(task.extendedInfo.userPhotos or []):
             url = str(p)
-            if i == 0:
+            if i!=0 and i % 10 == 0:
+                a = await send_with_repl(a, media, message)
+                media =[]
+            if i %10== 0:
                 media.append(InputMediaPhoto(media=url, caption=text))
             else:
                 media.append(InputMediaPhoto(media=url))
+        a = await send_with_repl(a, media, message)
 
-        a = await message.answer_media_group(media=media)
         print(a[0].message_id)
         kb = create_moderator_kb(task.userTaskId)
         await message.answer("Действие с задачей:", reply_markup=kb,reply_to_message_id=a[0].message_id)
@@ -79,6 +82,13 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
         await message.answer(f"Ошибка при получении фото: {e}")
         print(f"Error in show_next_photo: {e}")
 
+
+async def send_with_repl(a, media, message):
+    if a is None:
+        a = await message.answer_media_group(media=media)
+    else:
+        a = await message.answer_media_group(media=media, reply_to_message_id=a[0].message_id)
+    return a
 
 @router.callback_query(
     moderator_state.ModeratorFactory.filter(F.action == Actions.APPROVE_PHOTO)

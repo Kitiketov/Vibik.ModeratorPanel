@@ -3,6 +3,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from src.middleware import ModerationClientMiddleware, ModeratorAuthMiddleware
 from src.handlers import (
     moderator,
+    metrics,
 )
 
 
@@ -18,6 +19,7 @@ async def run_bot(token: str) -> None:
 
     dp.include_routers(
         moderator.router,
+        metrics.router,
     )
 
     await bot.delete_webhook(drop_pending_updates=True)

@@ -6,6 +6,8 @@ from typing import Any, Optional
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 
+from src.common.models.metric_model import MetricModel
+from src.common.models.metrics_list_model import MetricsListModel
 from src.common.models.moderation_task import ModerationTask
 from src.config import settings
 
@@ -39,6 +41,22 @@ class ModerationClient:
             resp.raise_for_status()
             data: Any = await resp.json()
             return ModerationTask.model_validate(data)
+
+    async def metrics(self) -> MetricsListModel | None:
+        """
+        GET /api/metrics
+        200 -> JSON объекта
+        204 -> пусто (нет метрик)
+        """
+        url = f"{self.base_url}/api/metrics"
+        timeout = ClientTimeout(total=10)
+        async with self.session.get(url, headers=self.headers, timeout=timeout) as resp:
+            if resp.status == 204:
+                return None
+            resp.raise_for_status()
+            data: Any = await resp.json()
+            return MetricsListModel.model_validate(data)
+    
 
     async def approve(self, user_task_id: int) -> bool:
         """
