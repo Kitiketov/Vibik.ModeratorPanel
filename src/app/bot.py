@@ -1,5 +1,7 @@
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
+
+from src.app.notify_server import start_notify_server, stop_notify_server
 from src.middleware import ModerationClientMiddleware, ModeratorAuthMiddleware
 from src.handlers import (
     moderator,
@@ -22,5 +24,9 @@ async def run_bot(token: str) -> None:
         metrics.router,
     )
 
-    await bot.delete_webhook(drop_pending_updates=True)
-    await dp.start_polling(bot)
+    notify_runner = await start_notify_server(bot)
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot)
+    finally:
+        await stop_notify_server(notify_runner)

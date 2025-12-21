@@ -1,4 +1,5 @@
 next_photo: str = "Следующие фото для проверки"
+new_task_notification: str = "Новая задача на модерации"
 cancel: str = "Отмена"
 close: str = "Закрыть"
 ok: str = "Окей"
