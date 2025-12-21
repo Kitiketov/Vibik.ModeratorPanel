@@ -68,7 +68,7 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
             if i!=0 and i % 10 == 0:
                 a = await send_with_repl(a, media, message)
                 media =[]
-            media.append(InputMediaDocument(media=url, caption=text if i % 10 == 0 else None))
+            media.append(InputMediaPhoto(media=url, caption=text if i % 10 == 0 else None))
 
         a = await send_with_repl(a, media, message)
 
