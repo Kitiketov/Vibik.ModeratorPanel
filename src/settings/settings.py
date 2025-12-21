@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     verify_ssl: bool = False
     ca_cert_path: str | None = None
     bot_secret: str = ""
+    notify_host: str = "0.0.0.0"
+    notify_port: int = 8090
+    notify_path: str = "/api/moderation/notify"
 
     @property
     def api_base(self) -> AnyUrl:
