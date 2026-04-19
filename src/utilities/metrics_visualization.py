@@ -9,7 +9,7 @@ from typing import Sequence
 import matplotlib
 import matplotlib.pyplot as plt
 
-from src.common.models.metric_model import MetricModel, MetricType
+from src.moderation.models import MetricModel, MetricType
 
 matplotlib.use("Agg")
 
@@ -324,7 +324,7 @@ def _normalize_metric_type(raw: object) -> MetricType | None:
         return raw
 
     try:
-        return MetricType(raw)  # tries int/enum value
+        return MetricType(raw)
     except Exception:
         pass
 

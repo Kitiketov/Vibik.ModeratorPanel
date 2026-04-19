@@ -3,11 +3,12 @@ from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InaccessibleMessage, InputMediaDocument, Message, ReactionTypeEmoji
 
-from src.api.photo_client import ModerationClient
-from src.keyboards.common_kb import create_moderator_kb, get_next_kb
-from src.states import moderator_state
-from src.states.actions import Actions
-from src.texts.common_text import next_photo
+from src.bot.keyboards.common_kb import create_moderator_kb, get_next_kb
+from src.bot.states import moderator_state
+from src.bot.states.actions import Actions
+from src.bot.texts.common_text import next_photo
+from src.bot.texts.moderation_text import photo_info
+from src.moderation.client import ModerationClient
 
 router = Router(name=__name__)
 
@@ -50,7 +51,7 @@ async def show_next_photo(message: Message, moderation_client: ModerationClient)
             await message.answer("Нет фотографий для модерации")
             return
 
-        text = task.info()
+        text = photo_info.format(task.name, task.extendedInfo.description, ", ".join(map(str, task.tags)))
         media: list[InputMediaDocument] = []
         a = None
         for i, p in enumerate(task.extendedInfo.userPhotos or []):

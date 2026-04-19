@@ -3,9 +3,9 @@ from aiogram.types.inline_keyboard_markup import InlineKeyboardMarkup
 from aiogram.types.keyboard_button import KeyboardButton
 from aiogram.types.reply_keyboard_markup import ReplyKeyboardMarkup
 
-from src.states.actions import Actions
-from src.states.moderator_state import ModeratorFactory
-from src.texts.common_text import approve, cancel, next_photo, ok, reject
+from src.bot.states.actions import Actions
+from src.bot.states.moderator_state import ModeratorFactory
+from src.bot.texts.common_text import approve, cancel, next_photo, ok, reject
 
 ok_kb: InlineKeyboardMarkup = InlineKeyboardMarkup(
     inline_keyboard=[

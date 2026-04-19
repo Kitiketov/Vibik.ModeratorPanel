@@ -3,8 +3,8 @@ from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
 from aiogram.types import CallbackQuery, Message, TelegramObject
 
-from src.api.photo_client import ModerationClient
-from src.texts.auth_text import access_check_error, access_check_error_alert, no_rights, no_rights_alert
+from src.bot.texts.auth_text import access_check_error, access_check_error_alert, no_rights, no_rights_alert
+from src.moderation.client import ModerationClient
 
 
 class ModeratorAuthMiddleware(BaseMiddleware):
@@ -12,10 +12,10 @@ class ModeratorAuthMiddleware(BaseMiddleware):
         self.client: ModerationClient | None = None
 
     async def __call__(
-        self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-        event: TelegramObject,
-        data: Dict[str, Any],
+            self,
+            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+            event: TelegramObject,
+            data: Dict[str, Any],
     ) -> Any:
         self.client = data.get("moderation_client")
 
