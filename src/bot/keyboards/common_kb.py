@@ -3,9 +3,9 @@ from aiogram.types.inline_keyboard_markup import InlineKeyboardMarkup
 from aiogram.types.keyboard_button import KeyboardButton
 from aiogram.types.reply_keyboard_markup import ReplyKeyboardMarkup
 
-from src.states.moderator_state import ModeratorFactory
-from src.texts.common_text import cancel, ok, next_photo, approve, reject
-from src.states.actions import Actions
+from src.bot.states.actions import Actions
+from src.bot.states.moderator_state import ModeratorFactory
+from src.bot.texts.common_text import approve, cancel, next_photo, ok, reject
 
 ok_kb: InlineKeyboardMarkup = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -36,21 +36,15 @@ def create_moderator_kb(user_task_id):
             [
                 InlineKeyboardButton(
                     text=approve,
-                    callback_data=ModeratorFactory(
-                        action=Actions.APPROVE_PHOTO, user_task_id=user_task_id
-                    ).pack(),
+                    callback_data=ModeratorFactory(action=Actions.APPROVE_PHOTO, user_task_id=user_task_id).pack(),
                 ),
                 InlineKeyboardButton(
                     text=reject,
-                    callback_data=ModeratorFactory(
-                        action=Actions.REJECT_PHOTO, user_task_id=user_task_id
-                    ).pack(),
+                    callback_data=ModeratorFactory(action=Actions.REJECT_PHOTO, user_task_id=user_task_id).pack(),
                 ),
             ]
         ]
     )
 
 
-get_next_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text=next_photo)]]
-)
+get_next_kb: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=next_photo)]])

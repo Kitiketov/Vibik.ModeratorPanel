@@ -2,8 +2,8 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import BufferedInputFile, Message
 
-from src.api.photo_client import ModerationClient
-from src.keyboards.common_kb import get_next_kb
+from src.bot.keyboards.common_kb import get_next_kb
+from src.moderation.client import ModerationClient
 from src.utilities.metrics_visualization import (
     build_metrics_visualization,
     format_average_time,
@@ -11,6 +11,7 @@ from src.utilities.metrics_visualization import (
 )
 
 router = Router(name=__name__)
+
 
 @router.message(Command("metrics"))
 async def metrics_handler(message: Message, moderation_client: ModerationClient) -> None:
@@ -39,4 +40,3 @@ async def metrics_handler(message: Message, moderation_client: ModerationClient)
     )
     photo = BufferedInputFile(visualization.image_bytes, filename=visualization.filename)
     await message.answer_photo(photo, caption=caption, reply_markup=get_next_kb)
-

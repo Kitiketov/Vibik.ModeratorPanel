@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import io
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
-from typing import Sequence
 
 import matplotlib
+import matplotlib.pyplot as plt
+
+from src.moderation.models import MetricModel, MetricType
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-
-from src.common.models.metric_model import MetricModel, MetricType
 
 
 @dataclass
@@ -50,27 +50,15 @@ def build_metrics_visualization(
         events.append((metric, ts, metric_type))
 
     # Сводка за последнюю неделю (7 дней от текущего момента)
-    summary_start_dt = datetime.combine(
-        now.date() - timedelta(days=6), datetime.min.time(), tzinfo=timezone.utc
-    )
-    summary_submit = [
-        (m, ts)
-        for m, ts, m_type in events
-        if ts >= summary_start_dt and m_type == MetricType.Submit
-    ]
-    summary_change = [
-        (m, ts)
-        for m, ts, m_type in events
-        if ts >= summary_start_dt and m_type == MetricType.Change
-    ]
+    summary_start_dt = datetime.combine(now.date() - timedelta(days=6), datetime.min.time(), tzinfo=timezone.utc)
+    summary_submit = [(m, ts) for m, ts, m_type in events if ts >= summary_start_dt and m_type == MetricType.Submit]
+    summary_change = [(m, ts) for m, ts, m_type in events if ts >= summary_start_dt and m_type == MetricType.Change]
     summary = _build_summary(summary_submit, summary_change)
 
     # Диаграмма по неделям
     current_week_start = now.date() - timedelta(days=now.weekday())
     chart_start_date = current_week_start - timedelta(days=7 * (weeks - 1))
-    chart_start_dt = datetime.combine(
-        chart_start_date, datetime.min.time(), tzinfo=timezone.utc
-    )
+    chart_start_dt = datetime.combine(chart_start_date, datetime.min.time(), tzinfo=timezone.utc)
     chart_events = [(m, ts, t) for m, ts, t in events if ts >= chart_start_dt]
     (
         labels,
@@ -152,9 +140,7 @@ def _average_submit_time(
     if not events:
         return None
 
-    total_minutes = sum(
-        ts.hour * 60 + ts.minute + ts.second / 60 for _, ts in events
-    )
+    total_minutes = sum(ts.hour * 60 + ts.minute + ts.second / 60 for _, ts in events)
     return total_minutes / len(events)
 
 
@@ -338,7 +324,7 @@ def _normalize_metric_type(raw: object) -> MetricType | None:
         return raw
 
     try:
-        return MetricType(raw)  # tries int/enum value
+        return MetricType(raw)
     except Exception:
         pass
 
