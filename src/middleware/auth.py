@@ -1,15 +1,10 @@
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message, TelegramObject
 
 from src.api.photo_client import ModerationClient
-from src.texts.auth_text import (
-    no_rights,
-    access_check_error,
-    no_rights_alert,
-    access_check_error_alert,
-)
+from src.texts.auth_text import access_check_error, access_check_error_alert, no_rights, no_rights_alert
 
 
 class ModeratorAuthMiddleware(BaseMiddleware):
@@ -26,7 +21,6 @@ class ModeratorAuthMiddleware(BaseMiddleware):
 
         if not self.client:
             return await handler(event, data)
-
 
         user_id = None
         if isinstance(event, Message) and event.from_user:

@@ -12,6 +12,7 @@ from src.utilities.metrics_visualization import (
 
 router = Router(name=__name__)
 
+
 @router.message(Command("metrics"))
 async def metrics_handler(message: Message, moderation_client: ModerationClient) -> None:
     try:
@@ -39,4 +40,3 @@ async def metrics_handler(message: Message, moderation_client: ModerationClient)
     )
     photo = BufferedInputFile(visualization.image_bytes, filename=visualization.filename)
     await message.answer_photo(photo, caption=caption, reply_markup=get_next_kb)
-

@@ -1,5 +1,6 @@
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
+
 from src.api.photo_client import ModerationClient, create_http_session
 from src.config import settings
 

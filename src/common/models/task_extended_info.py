@@ -1,5 +1,7 @@
-from pydantic import BaseModel, ConfigDict,AnyHttpUrl
 from typing import List, Optional
+
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict
+
 
 class TaskExtendedInfo(BaseModel):
     model_config = ConfigDict(populate_by_name=True)

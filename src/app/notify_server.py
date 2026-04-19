@@ -3,8 +3,8 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from aiohttp import web
 from aiogram import Bot
+from aiohttp import web
 
 from src.config import settings
 from src.keyboards.common_kb import get_next_kb
@@ -28,8 +28,7 @@ def _normalize_ids(raw_ids: Any) -> list[int] | None:
 
 async def _send_notifications(bot: Bot, moderator_ids: list[int], text: str) -> dict[str, Any]:
     tasks = [
-        bot.send_message(chat_id=moderator_id, text=text, reply_markup=get_next_kb)
-        for moderator_id in moderator_ids
+        bot.send_message(chat_id=moderator_id, text=text, reply_markup=get_next_kb) for moderator_id in moderator_ids
     ]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 

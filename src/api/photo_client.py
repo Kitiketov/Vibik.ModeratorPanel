@@ -1,21 +1,16 @@
 from __future__ import annotations
 
-import ssl
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 
-from src.common.models.metric_model import MetricModel
 from src.common.models.metrics_list_model import MetricsListModel
 from src.common.models.moderation_task import ModerationTask
 from src.config import settings
 
-
-
-
-
 # ---- client ----
+
 
 class ModerationClient:
     def __init__(self, base_url: str, session: ClientSession, token: str | None = None):
@@ -24,8 +19,6 @@ class ModerationClient:
         self.headers: dict[str, str] = {}
         if settings.bot_secret:
             self.headers["Authorization"] = f"Bearer {settings.bot_secret}"
-
-
 
     async def next(self) -> ModerationTask | None:
         """
@@ -56,7 +49,6 @@ class ModerationClient:
             resp.raise_for_status()
             data: Any = await resp.json()
             return MetricsListModel.model_validate(data)
-    
 
     async def approve(self, user_task_id: int) -> bool:
         """

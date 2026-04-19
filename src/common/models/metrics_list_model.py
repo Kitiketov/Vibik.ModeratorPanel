@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, RootModel
+from pydantic import RootModel
 
 from src.common.models.metric_model import MetricModel
 

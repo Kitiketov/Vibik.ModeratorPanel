@@ -2,11 +2,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from src.app.notify_server import start_notify_server, stop_notify_server
+from src.handlers import metrics, moderator
 from src.middleware import ModerationClientMiddleware, ModeratorAuthMiddleware
-from src.handlers import (
-    moderator,
-    metrics,
-)
 
 
 async def run_bot(token: str) -> None:
