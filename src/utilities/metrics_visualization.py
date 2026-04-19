@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import io
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
-from typing import Sequence
 
 import matplotlib
 import matplotlib.pyplot as plt

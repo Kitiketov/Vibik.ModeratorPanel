@@ -8,8 +8,6 @@ class Settings(BaseSettings):
     api_base_local: AnyUrl | None = None
     api_env: str = "prod"  # prod | local
     api_token: str | None = None
-    verify_ssl: bool = False
-    ca_cert_path: str | None = None
     bot_secret: str = ""
     notify_host: str = "0.0.0.0"
     notify_port: int = 8090

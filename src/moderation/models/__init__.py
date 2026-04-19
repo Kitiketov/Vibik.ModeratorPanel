@@ -1,6 +1,6 @@
 from .metrics import MetricModel, MetricsListModel, MetricType
 from .task import ModerationTask, PhotoModel, TaskExtendedInfo
-
+from .auth import ModeratorCheckResponse
 __all__ = [
     "MetricModel",
     "MetricsListModel",
@@ -8,4 +8,5 @@ __all__ = [
     "ModerationTask",
     "PhotoModel",
     "TaskExtendedInfo",
+    "ModeratorCheckResponse",
 ]

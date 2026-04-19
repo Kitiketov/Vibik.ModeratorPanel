@@ -6,11 +6,11 @@ import aiohttp
 from aiohttp import ClientSession, ClientTimeout
 
 from src.core.config import settings
-from src.moderation.models import MetricsListModel, ModerationTask
+from src.moderation.models import MetricsListModel, ModerationTask,ModeratorCheckResponse
 
 
 class ModerationClient:
-    def __init__(self, base_url: str, session: ClientSession, token: str | None = None):
+    def __init__(self, base_url: str, session: ClientSession):
         self.base_url = base_url.rstrip("/")
         self.session = session
         self.headers: dict[str, str] = {}
@@ -34,7 +34,7 @@ class ModerationClient:
             if resp.status == 204:
                 return None
             resp.raise_for_status()
-            data: Any = await resp.json()
+            data = await resp.json()
             return MetricsListModel.model_validate(data)
 
     async def approve(self, user_task_id: int) -> bool:
@@ -58,15 +58,10 @@ class ModerationClient:
             if resp.status in (204, 404):
                 return False
             resp.raise_for_status()
-            data: Any = await resp.json()
-            if isinstance(data, dict):
-                for value in data.values():
-                    if isinstance(value, bool):
-                        return value
+            data = await resp.json()
             if isinstance(data, bool):
                 return data
             return False
-
 
 async def create_http_session() -> ClientSession:
     connector = aiohttp.TCPConnector()
